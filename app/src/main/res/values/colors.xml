@@ -10,4 +10,7 @@
 	<color name="couleurMainFondSaisie">#95BDE6</color>
 	<color name="couleurMainFondValider">#A63429</color>
 
+	<!-- Détail -->
+	<color name="couleurFondDetail">#B6D4F2</color>
+
 </resources>

@@ -9,6 +9,7 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +20,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerView.OnIt
 	// Vues :
 	private RecyclerView recyclerView = null;
 	private EditText editTextMemo = null;
+	private FrameLayout frameLayoutConteneurDetail = null;
 	
 	// Adapter :
 	private MemosAdapter memosAdapter = null;
@@ -37,6 +39,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerView.OnIt
 		// vues :
 		recyclerView = findViewById(R.id.liste_memos);
 		editTextMemo = findViewById(R.id.saisie_memo);
+		frameLayoutConteneurDetail = findViewById(R.id.conteneur_detail);
 		
 		// à ajouter pour de meilleures performances :
 		recyclerView.setHasFixedSize(true);
@@ -85,9 +88,24 @@ public class MainActivity extends AppCompatActivity implements RecyclerView.OnIt
 				Memo memo = memosAdapter.getItemParPosition(position);
 				
 				// affichage du détail :
-				Intent intent = new Intent(this, DetailActivity.class);
-				intent.putExtra(DetailFragment.EXTRA_MEMO, memo.getIntitule());
-				startActivity(intent);
+				if (frameLayoutConteneurDetail != null)
+				{
+					// fragment :
+					DetailFragment fragment = new DetailFragment();
+					Bundle bundle = new Bundle();
+					bundle.putString(DetailFragment.EXTRA_MEMO, memo.getIntitule());
+					fragment.setArguments(bundle);
+					
+					// le conteneur de la partie détail est disponible, on est donc en mode "tablette" :
+					getSupportFragmentManager().beginTransaction().replace(R.id.conteneur_detail, fragment).commit();
+				}
+				else
+				{
+					// le conteneur de la partie détail n'est pas disponible, on est donc en mode "smartphone" :
+					Intent intent = new Intent(this, DetailActivity.class);
+					intent.putExtra(DetailFragment.EXTRA_MEMO, memo.getIntitule());
+					startActivity(intent);
+				}
 				
 				return true;
 			}
