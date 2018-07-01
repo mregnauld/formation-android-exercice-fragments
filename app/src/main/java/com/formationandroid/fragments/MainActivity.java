@@ -5,8 +5,6 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.GestureDetector;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -14,7 +12,7 @@ import android.widget.FrameLayout;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements RecyclerView.OnItemTouchListener
+public class MainActivity extends AppCompatActivity
 {
 	
 	// Vues :
@@ -24,9 +22,6 @@ public class MainActivity extends AppCompatActivity implements RecyclerView.OnIt
 	
 	// Adapter :
 	private MemosAdapter memosAdapter = null;
-	
-	// Gesture detector :
-	private GestureDetector gestureDetector = null;
 	
 	
 	@Override
@@ -56,68 +51,39 @@ public class MainActivity extends AppCompatActivity implements RecyclerView.OnIt
 		}
 		
 		// adapter :
-		memosAdapter = new MemosAdapter(listeMemos);
+		memosAdapter = new MemosAdapter(this, listeMemos);
 		recyclerView.setAdapter(memosAdapter);
-		
-		// listener :
-		recyclerView.addOnItemTouchListener(this);
-		gestureDetector = new GestureDetector(this,
-				new GestureDetector.SimpleOnGestureListener()
-				{
-					@Override
-					public boolean onSingleTapUp(MotionEvent event)
-					{
-						return true;
-					}
-				});
 	}
 	
-	@Override
-	public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent motionEvent)
+	/**
+	 * Appelé lors du clic sur un item de la liste, depuis l'adapter.
+	 * @param position Position dans la liste d'objets métier (position à partir de zéro !)
+	 */
+	public void onClicItem(int position)
 	{
-		if (gestureDetector.onTouchEvent(motionEvent))
+		// récupération du mémo à cette position :
+		Memo memo = memosAdapter.getItemParPosition(position);
+		
+		// affichage du détail :
+		if (frameLayoutConteneurDetail != null)
 		{
-			// récupération de l'item cliqué :
-			View child = recyclerView.findChildViewUnder(motionEvent.getX(), motionEvent.getY());
-			if (child != null)
-			{
-				// position dans la liste d'objets métier (position à partir de zéro !) :
-				int position = recyclerView.getChildAdapterPosition(child);
-				
-				// récupération du mémo à cette position :
-				Memo memo = memosAdapter.getItemParPosition(position);
-				
-				// affichage du détail :
-				if (frameLayoutConteneurDetail != null)
-				{
-					// fragment :
-					DetailFragment fragment = new DetailFragment();
-					Bundle bundle = new Bundle();
-					bundle.putString(DetailFragment.EXTRA_MEMO, memo.getIntitule());
-					fragment.setArguments(bundle);
-					
-					// le conteneur de la partie détail est disponible, on est donc en mode "tablette" :
-					getSupportFragmentManager().beginTransaction().replace(R.id.conteneur_detail, fragment).commit();
-				}
-				else
-				{
-					// le conteneur de la partie détail n'est pas disponible, on est donc en mode "smartphone" :
-					Intent intent = new Intent(this, DetailActivity.class);
-					intent.putExtra(DetailFragment.EXTRA_MEMO, memo.getIntitule());
-					startActivity(intent);
-				}
-				
-				return true;
-			}
+			// fragment :
+			DetailFragment fragment = new DetailFragment();
+			Bundle bundle = new Bundle();
+			bundle.putString(DetailFragment.EXTRA_MEMO, memo.intitule);
+			fragment.setArguments(bundle);
+			
+			// le conteneur de la partie détail est disponible, on est donc en mode "tablette" :
+			getSupportFragmentManager().beginTransaction().replace(R.id.conteneur_detail, fragment).commit();
 		}
-		return false;
+		else
+		{
+			// le conteneur de la partie détail n'est pas disponible, on est donc en mode "smartphone" :
+			Intent intent = new Intent(this, DetailActivity.class);
+			intent.putExtra(DetailFragment.EXTRA_MEMO, memo.intitule);
+			startActivity(intent);
+		}
 	}
-	
-	@Override
-	public void onTouchEvent(RecyclerView rv, MotionEvent e) {}
-	
-	@Override
-	public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {}
 	
 	/**
 	 * Listener clic bouton valider.

@@ -4,11 +4,15 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import java.util.List;
 
-public class MemosAdapter extends RecyclerView.Adapter<MemoViewHolder>
+public class MemosAdapter extends RecyclerView.Adapter<MemosAdapter.MemoViewHolder>
 {
+	
+	// Activité :
+	private MainActivity mainActivity = null;
 	
 	// Liste d'objets métier :
 	private List<Memo> listeMemos = null;
@@ -16,10 +20,12 @@ public class MemosAdapter extends RecyclerView.Adapter<MemoViewHolder>
 	
 	/**
 	 * Constructeur.
+	 * @param mainActivity MainActivity
 	 * @param listeMemos Liste de mémos
 	 */
-	public MemosAdapter(List<Memo> listeMemos)
+	public MemosAdapter(MainActivity mainActivity, List<Memo> listeMemos)
 	{
+		this.mainActivity = mainActivity;
 		this.listeMemos = listeMemos;
 	}
 	
@@ -33,7 +39,7 @@ public class MemosAdapter extends RecyclerView.Adapter<MemoViewHolder>
 	@Override
 	public void onBindViewHolder(MemoViewHolder holder, int position)
 	{
-		holder.getTextViewIntitule().setText(listeMemos.get(position).getIntitule());
+		holder.textViewIntitule.setText(listeMemos.get(position).intitule);
 	}
 	
 	@Override
@@ -60,6 +66,39 @@ public class MemosAdapter extends RecyclerView.Adapter<MemoViewHolder>
 	public Memo getItemParPosition(int position)
 	{
 		return listeMemos.get(position);
+	}
+	
+	
+	/**
+	 * ViewHolder.
+	 */
+	class MemoViewHolder extends RecyclerView.ViewHolder
+	{
+		
+		// Vue intitulé mémo :
+		TextView textViewIntitule = null;
+		
+		
+		/**
+		 * Constructeur.
+		 * @param itemView Vue item
+		 */
+		MemoViewHolder(final View itemView)
+		{
+			super(itemView);
+			textViewIntitule = itemView.findViewById(R.id.memo_intitule);
+			
+			// listener :
+			itemView.setOnClickListener(new View.OnClickListener()
+			{
+				@Override
+				public void onClick(View view)
+				{
+					mainActivity.onClicItem(getAdapterPosition());
+				}
+			});
+		}
+		
 	}
 	
 }
